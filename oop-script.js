@@ -49,6 +49,17 @@ class APIService {
         const data = await response.json()
         return new Person(data)
     }
+    static async fetchSimilarMovies(movieId) {
+        const url = APIService._constructUrl(`movie/${movieId}/similar`)
+        const response  = await fetch(url)
+        const data = await response.json()
+        //return data.results.map(movie => new Movie(movie))
+        const simMovies = []
+        for (i = 0; i < 5; i++) {
+            simMovies.push(data.results[i])
+        }
+        return simMovies.map( movie => new Movie(movie))
+    }
     static _constructUrl(path) {
         return `${this.TMDB_BASE_URL}/${path}?api_key=${atob('NTQyMDAzOTE4NzY5ZGY1MDA4M2ExM2M0MTViYmM2MDI=')}`;
     }
@@ -110,6 +121,8 @@ class Movies {
         MoviePage.renderMovieSection(movieData);
         const actors = await APIService.fetchActors(movie.id)
         MoviePage.renderActorsSection(actors)
+        const similarMovies = await APIService.fetchSimilarMovies(movie.id)
+        MoviePage.renderSimilarMoviesSection(similarMovies)
 
     }
 }
@@ -129,6 +142,9 @@ class MoviePage {
     static renderActorsSection(actors) {
         MovieSection.renderActors(actors);
     }
+    static renderSimilarMoviesSection(movies) {
+        MovieSection.renderSimilarMovies(movies);
+    }
 }
 
 class MovieSection {
@@ -147,13 +163,19 @@ class MovieSection {
           <p id="movie-overview">${movie.overview}</p>
         </div>
       </div>
+      <div class="actors-list">
       <h3>Actors:</h3>
+      </div>
+      <div class="similar-list pt-4">
+      <h3>More Like ${movie.title}</h3>
+      </div>
     `;
     }
     static renderActors(actors) {
         const actorsList = document.createElement('ul')
         actorsList.id = 'actors'
-        MoviePage.container.appendChild(actorsList)
+        const actorsDiv = document.querySelector(".actors-list")
+        actorsDiv.appendChild(actorsList)
         actors.forEach(actor => {
            const actorLi = document.createElement('li')
            const actorImg = document.createElement('img')
@@ -162,10 +184,27 @@ class MovieSection {
            actorName.textContent = `${actor.name}`
            actorImg.addEventListener('click', function() {
                 Actors.run(actor)
-           })
-           actorLi.appendChild(actorImg)
-           actorLi.appendChild(actorName)
-           actorsList.appendChild(actorLi)
+           });
+           actorLi.appendChild(actorImg);
+           actorLi.appendChild(actorName);
+           actorsList.appendChild(actorLi);
+        })
+    }
+    static renderSimilarMovies(movies) {
+        const similarDiv = document.querySelector(".similar-list")
+        const similarList = document.createElement("ul")
+        similarList.id ='sim-list'
+        similarDiv.appendChild(similarList)
+        movies.forEach(movie => {
+            const simMovie = document.createElement('li')
+            const movieImg = document.createElement('img')
+            movieImg.src = `${movie.posterUrl}`
+            movieImg.alt = `${movie.title}`
+            movieImg.addEventListener('click', function() {
+                Movies.run(movie)
+            });
+            simMovie.appendChild(movieImg)
+            similarList.appendChild(simMovie)
         })
     }
 }
@@ -201,6 +240,7 @@ class Movie {
     constructor(json) {
         this.id = json.id;
         this.title = json.title;
+
         this.vote_average = json.vote_average;
         this.genres = json.genres;
         this.releaseDate = json.release_date;
@@ -216,6 +256,9 @@ class Movie {
 
     get posterUrl() {
         return this.poster ? Movie.BACKDROP_BASE_URL + this.poster : "";
+    }
+    get genres() {
+
     }
 }
 

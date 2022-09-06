@@ -72,6 +72,10 @@ p {
 .movie-poster{
     border-radius: 1rem;
 }
+.movie-poster:hover {
+
+    border: 4px solid rgb(13, 211, 13);
+}
 
 @media screen and (max-width:640px) {
     .movie-home {

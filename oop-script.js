@@ -203,7 +203,7 @@ class Movie {
     constructor(json) {
         this.id = json.id;
         this.title = json.title;
-        /*this.genres = json.genres;*/
+        this.genre = json.genres;
         this.releaseDate = json.release_date;
         this.runtime = json.runtime + " minutes";
         this.overview = json.overview;
@@ -217,6 +217,9 @@ class Movie {
 
     get posterUrl() {
         return this.poster ? Movie.BACKDROP_BASE_URL + this.poster : "";
+    }
+    get genres() {
+
     }
 }
 

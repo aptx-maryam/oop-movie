@@ -3,7 +3,6 @@
 class App {
     static async run() {
         const movies = await APIService.fetchMovies()
-        // console.log(movies)
         HomePage.renderMovies(movies);
     }
 }
@@ -26,11 +25,8 @@ class APIService {
         return new Movie(data)
     }
     static async searchMovies(searchTerm){
-        // https://api.themoviedb.org/3/search/movie?api_key=5c8358b462ac5e72db3b0f23bbbb210d&query=batman
         const url = `${APIService.TMDB_BASE_URL}/search/movie?api_key=${atob('NTQyMDAzOTE4NzY5ZGY1MDA4M2ExM2M0MTViYmM2MDI=')}&query=${searchTerm}`
         let movies = await APIService.fetchMovies(url);
-        // const data = await movies.json()
-        console.log(movies);
         HomePage.renderMovies(movies);
     }
     static async fetchActors(movieId) {
@@ -41,7 +37,7 @@ class APIService {
             if(actor.order < 5) {
                 return new Actor(actor)
             }
-        })
+        }).slice(0,5)
     }
     static async fetchActor(actorId) {
         const url = APIService._constructUrl(`person/${actorId}`)
@@ -53,15 +49,10 @@ class APIService {
         const url = APIService._constructUrl(`movie/${movieId}/similar`)
         const response  = await fetch(url)
         const data = await response.json()
-        //return data.results.map(movie => new Movie(movie))
-        const simMovies = []
-        for (i = 0; i < 5; i++) {
-            simMovies.push(data.results[i])
-        }
-        return simMovies.map( movie => new Movie(movie))
+        return data.results.map(movie => new Movie(movie)).slice(0,5)
     }
     static _constructUrl(path) {
-        return `${this.TMDB_BASE_URL}/${path}?api_key=${atob('NTQyMDAzOTE4NzY5ZGY1MDA4M2ExM2M0MTViYmM2MDI=')}`;
+        return `${this.TMDB_BASE_URL}/${path}?api_key=5c8358b462ac5e72db3b0f23bbbb210d`;
     }
 }
 
@@ -72,44 +63,35 @@ class HomePage {
         container.innerHTML='';
         const movieHome = document.createElement('div')
         movieHome.className = "movie-home"
-        movies.forEach(movie => {
-            
-            
+        movies.forEach(movie => { 
             const movieDiv = document.createElement("div");
             const movieImage = document.createElement("img");
-            // movieImage.classList.add('card-image');
-            // console.log(movie.vote_average);
             const movieTitle = document.createElement("p");
-            const movieRating = document.createElement("p");
-            
+            const movieRating = document.createElement("div");
+            movieRating.className ='rating'
             movieImage.src = `${movie.posterUrl}`;
             movieImage.className = "movie-poster"
             movieTitle.textContent = movie.title;
-            movieRating.textContent = movie.vote_average;
-            /*const movieTitle = document.createElement("h3");
-            movieTitle.textContent = `${movie.title}`;*/
+            const star = document.createElement('i')
+            star.classList = "bi bi-star-fill"
+            const rating = document.createElement('p')
+            rating.textContent = movie.vote_average;
+            movieRating.appendChild(star)
+            movieRating.appendChild(rating)
             movieImage.addEventListener("click", function() {
                 Movies.run(movie);
             });
-            /*movieDiv.appendChild(movieTitle);*/
             movieDiv.appendChild(movieImage);
             movieDiv.appendChild(movieTitle);
             movieDiv.appendChild(movieRating);
-            console.log(movie);
             movieHome.appendChild(movieDiv);
             this.container.appendChild(movieHome);   
         })
         let searchBox = document.querySelector('.form-control.me-2')
         let searchButton = document.querySelector('.btn.btn-outline-success')
-        // let searchForm = document.querySelector(form.d-flex)
-        // searchForm.preventDefault;
-        // if (searchBox.value.length>0){
         searchButton.addEventListener('click', (e) => {
             APIService.searchMovies(searchBox.value)
-            // e.preventDefault;
-            // console.log(searchBox.value);
         })
-        // }
     }
 
 }
@@ -118,12 +100,15 @@ class HomePage {
 class Movies {
     static async run(movie) {
         const movieData = await APIService.fetchMovie(movie.id)
+        console.log(movieData)
         MoviePage.renderMovieSection(movieData);
         const actors = await APIService.fetchActors(movie.id)
-        MoviePage.renderActorsSection(actors)
-        const similarMovies = await APIService.fetchSimilarMovies(movie.id)
-        MoviePage.renderSimilarMoviesSection(similarMovies)
-
+        console.log(actors)
+        MoviePage.renderActorsSection(actors);
+        const similar = await APIService.fetchSimilarMovies(movie.id)
+        console.log(similar)
+        MoviePage.renderSimilarSection(similar)
+        
     }
 }
 
@@ -142,13 +127,14 @@ class MoviePage {
     static renderActorsSection(actors) {
         MovieSection.renderActors(actors);
     }
-    static renderSimilarMoviesSection(movies) {
-        MovieSection.renderSimilarMovies(movies);
+    static renderSimilarSection(movies) {
+        MovieSection.renderSimilar(movies)
     }
 }
 
 class MovieSection {
     static renderMovie(movie) {
+        console.log(movie.id)
         MoviePage.container.innerHTML = `
       <div class="row">
         <div class="col-md-4">
@@ -163,50 +149,55 @@ class MovieSection {
           <p id="movie-overview">${movie.overview}</p>
         </div>
       </div>
-      <div class="actors-list">
-      <h3>Actors:</h3>
+      <div class="row">
+        <div class="actors-list">
+        <h3>Actors:</h3>
+        </div>
       </div>
-      <div class="similar-list pt-4">
-      <h3>More Like ${movie.title}</h3>
-      </div>
-    `;
+      <div class="row">
+        <div class="similar-list">
+            <h3>More Like ${movie.title}</h3>
+        </div>
+      </div>`;
     }
     static renderActors(actors) {
-        const actorsList = document.createElement('ul')
-        actorsList.id = 'actors'
-        const actorsDiv = document.querySelector(".actors-list")
-        actorsDiv.appendChild(actorsList)
+        const actorsList = document.createElement('ul');
+        actorsList.id = 'actors';
+        const actorsDiv = document.querySelector(".actors-list");
+        actorsDiv.appendChild(actorsList);
         actors.forEach(actor => {
-           const actorLi = document.createElement('li')
-           const actorImg = document.createElement('img')
-           actorImg.src = `${actor.profileURL}`
-           const actorName = document.createElement('p')
-           actorName.textContent = `${actor.name}`
+           const actorLi = document.createElement('li');
+           const actorImg = document.createElement('img');
+           actorImg.src = `${actor.profileUrl}`;
+           actorImg.alt = `${actor.name}`;
+           const actorName = document.createElement('p');
+           actorName.textContent = `${actor.name}`;
            actorImg.addEventListener('click', function() {
                 Actors.run(actor)
            });
            actorLi.appendChild(actorImg);
            actorLi.appendChild(actorName);
            actorsList.appendChild(actorLi);
-        })
+        });
     }
-    static renderSimilarMovies(movies) {
-        const similarDiv = document.querySelector(".similar-list")
-        const similarList = document.createElement("ul")
-        similarList.id ='sim-list'
+    static renderSimilar(movies) {
+        const similarDiv = document.querySelector(".similar-list");
+        let similarList = document.createElement("ul");
+        similarList.id = "similar"
         similarDiv.appendChild(similarList)
         movies.forEach(movie => {
-            const simMovie = document.createElement('li')
-            const movieImg = document.createElement('img')
+            const simovie = document.createElement('li');
+            const movieImg = document.createElement('img');
             movieImg.src = `${movie.posterUrl}`
-            movieImg.alt = `${movie.title}`
+            movieImg.alt= `${movie.title}`
             movieImg.addEventListener('click', function() {
                 Movies.run(movie)
             });
-            simMovie.appendChild(movieImg)
-            similarList.appendChild(simMovie)
+            simovie.appendChild(movieImg);
+            similarList.appendChild(simovie);
         })
     }
+    
 }
 
 class ActorPage {
@@ -257,9 +248,6 @@ class Movie {
     get posterUrl() {
         return this.poster ? Movie.BACKDROP_BASE_URL + this.poster : "";
     }
-    get genres() {
-
-    }
 }
 
 class Actor {
@@ -271,7 +259,7 @@ class Actor {
 
     }
 
-    get profileURL() {
+    get profileUrl() {
         return this.profile ? Actor.BACKDROP_BASE_URL + this.profile : "" ;
     }
 }

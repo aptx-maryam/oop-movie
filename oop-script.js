@@ -134,7 +134,6 @@ class MoviePage {
 
 class MovieSection {
     static renderMovie(movie) {
-        console.log(movie.id)
         MoviePage.container.innerHTML = `
       <div class="row">
         <div class="col-md-4">
@@ -142,8 +141,8 @@ class MovieSection {
         </div>
         <div class="col-md-8">
           <h2 id="movie-title">${movie.title}</h2>
-          <p id="genres">${movie.genres}</p>
-          <p id="movie-release-date">${movie.releaseDate}</p>
+          <ul id="genres"></ul>
+          <p id="movie-release-date">Release Date: ${movie.releaseDate}</p>
           <p id="movie-runtime">${movie.runtime}</p>
           <h3>Overview:</h3>
           <p id="movie-overview">${movie.overview}</p>
@@ -159,6 +158,12 @@ class MovieSection {
             <h3>More Like ${movie.title}</h3>
         </div>
       </div>`;
+      const genreList = document.getElementById("genres")
+      movie.genre.forEach(genre => {
+        const genItem = document.createElement('li')
+        genItem.textContent = genre;
+        genreList.appendChild(genItem);
+      })
     }
     static renderActors(actors) {
         const actorsList = document.createElement('ul');
@@ -197,6 +202,7 @@ class MovieSection {
             similarList.appendChild(simovie);
         })
     }
+    
     
 }
 
@@ -247,6 +253,13 @@ class Movie {
 
     get posterUrl() {
         return this.poster ? Movie.BACKDROP_BASE_URL + this.poster : "";
+    }
+    get genre() {
+        let genres = []
+        this.genres.forEach(genre => {
+            genres.push(genre.name)
+        })
+        return genres
     }
 }
 

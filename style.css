@@ -97,6 +97,17 @@ p {
     height:246px;
     border: 4px solid rgb(13, 211, 13);
 }
+#genres {
+    display:flex;
+    font-family: "Work Sans";
+    list-style-type: none;
+}
+#genres li {
+    padding: 4px;
+    margin: 3px;
+    border-radius: 1rem;
+    border: 2px solid rgb(13, 211, 13);
+}
 .github-list {
     list-style-type: none;
 }

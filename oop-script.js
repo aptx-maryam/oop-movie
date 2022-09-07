@@ -4,6 +4,7 @@ class App {
     static async run() {
         const movies = await APIService.fetchMovies()
         HomePage.renderMovies(movies);
+        Navbar.run();
     }
 }
 
@@ -310,6 +311,16 @@ class Person {
         else {
             return this.deathday
         }
+    }
+}
+
+class Navbar {
+    static container = document.getElementById('container');
+    static run() {
+        const about = document.querySelector(".nav-item.about")
+        about.addEventListener('click', function() {
+            Navbar.container.innerHTML = ''
+        })
     }
 }
 

@@ -27,6 +27,10 @@ p {
     justify-content: space-around;
 }
 
+.dropdown-menu.dropdown-item:hover{
+    color:black;
+}
+
 .footer {
     margin-top: 15px;
     padding: 20px;

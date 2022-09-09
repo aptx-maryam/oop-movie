@@ -46,6 +46,13 @@ class APIService {
         const data = await response.json()
         return new Person(data)
     }
+    static async fetchTrailer(movieId) {
+        const url = APIService._constructUrl(`movie/${movieId}/videos`)
+        const response = await fetch(url)
+        const data = await response.json()
+        const trailer =  data.results.find(vid => vid.official == true && vid.site =="YouTube")
+        return new Trailer(trailer)
+    }
     static async fetchSimilarMovies(movieId) {
         const url = APIService._constructUrl(`movie/${movieId}/similar`)
         const response  = await fetch(url)
@@ -101,14 +108,13 @@ class HomePage {
 class Movies {
     static async run(movie) {
         const movieData = await APIService.fetchMovie(movie.id)
-        console.log(movieData)
         MoviePage.renderMovieSection(movieData);
         const actors = await APIService.fetchActors(movie.id)
-        console.log(actors)
         MoviePage.renderActorsSection(actors);
         const similar = await APIService.fetchSimilarMovies(movie.id)
-        console.log(similar)
         MoviePage.renderSimilarSection(similar)
+        const trailerData = await APIService.fetchTrailer(movie.id)
+        MoviePage.renderTrailerSection(trailerData)
         
     }
 }
@@ -131,6 +137,9 @@ class MoviePage {
     static renderSimilarSection(movies) {
         MovieSection.renderSimilar(movies)
     }
+    static renderTrailerSection(trailer) {
+        MovieSection.renderTrailer(trailer)
+    }
 }
 
 class MovieSection {
@@ -152,6 +161,11 @@ class MovieSection {
       <div class="row">
         <div class="actors-list">
         <h3>Actors:</h3>
+        </div>
+      </div>
+      <div class="row">
+        <div class="trailer m-5 p-2">
+
         </div>
       </div>
       <div class="row">
@@ -185,6 +199,17 @@ class MovieSection {
            actorLi.appendChild(actorName);
            actorsList.appendChild(actorLi);
         });
+    }
+    static renderTrailer(trailer) {
+        const trailerDiv = document.querySelector(".trailer");
+        console.log(trailerDiv)
+        const video = document.createElement("iframe");
+        video.src = trailer.trailerURL;
+        video.title = trailer.name;
+        video.allowFullscreen = true;
+        video.width = "650";
+        video.height = "415";
+        trailerDiv.appendChild(video);
     }
     static renderSimilar(movies) {
         const similarDiv = document.querySelector(".similar-list");
@@ -314,12 +339,38 @@ class Person {
     }
 }
 
+class Trailer {
+    static YT_BASE_URL = 'https://www.youtube.com/embed/';
+    constructor(json) {
+        this.id = json.id;
+        this.key = json.key;
+        this.site = json.site;
+        this.type = json.type;
+        this.name = json.name;
+    }
+
+    get trailerURL() {
+        return this.key ? Trailer.YT_BASE_URL + this.key : "" ;
+    }
+}
+
 class Navbar {
     static container = document.getElementById('container');
     static run() {
         const about = document.querySelector(".nav-item.about")
         about.addEventListener('click', function() {
-            Navbar.container.innerHTML = ''
+            Navbar.container.innerHTML = `
+            <div class=row>
+            <div class="col-md-4">
+             <img src ="tmdb.png" id="app-image">
+            </div>
+            <div class="col-md-6 p-5 m-5">
+                <h3>TMDB</h3>
+                <p> Browse thousands of movies, discover what's trending and all time top rated. Filter movies
+                based on your preferred genres and favorite actors. Checkout the ratings, reviews and trailers to help you decide on your next favorite movie!</p>
+            </div>
+            </div>
+            `
         })
     }
 }

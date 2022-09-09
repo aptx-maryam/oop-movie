@@ -9,6 +9,10 @@ body {
     width: 110px;
     padding-right: 30px;
 }
+#app-image {
+    width: 400px;
+    height:500px;
+}
 p {
     font-family: "Work Sans";
 }
@@ -158,5 +162,13 @@ p {
     .movie-poster {
         width: 100%;
         border-radius: 5%;
+    }
+    #similar {
+        flex-direction: column;
+    }
+
+    iframe {
+        width: 100%;
+        height: auto;
     }
 }

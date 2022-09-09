@@ -50,7 +50,7 @@ class APIService {
         const url = APIService._constructUrl(`movie/${movieId}/videos`)
         const response = await fetch(url)
         const data = await response.json()
-        const trailer =  data.results.find(vid => vid.official == true && vid.site =="YouTube")
+        const trailer =  data.results.find(vid => vid.official == true && vid.site =="YouTube" && vid.type == "Trailer")
         return new Trailer(trailer)
     }
     static async fetchSimilarMovies(movieId) {

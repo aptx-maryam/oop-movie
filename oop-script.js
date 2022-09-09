@@ -59,6 +59,30 @@ class APIService {
         const data = await response.json()
         return data.results.map(movie => new Movie(movie)).slice(0,5)
     }
+    static async fetchPopular() {
+        let url = APIService._constructUrl(`movie/popular`)
+        const response = await fetch(url)
+        const data = await response.json()
+        return data.results.map(movie => new Movie(movie))
+    }
+    static async fetchTopRated() {
+        let url = APIService._constructUrl(`movie/top_rated`)
+        const response = await fetch(url)
+        const data = await response.json()
+        return data.results.map(movie => new Movie(movie))
+    }
+    static async fetchUpcoming() {
+        let url = APIService._constructUrl(`movie/upcoming`)
+        const response = await fetch(url)
+        const data = await response.json()
+        return data.results.map(movie => new Movie(movie))
+    }
+    static async fetchLatest() {
+        let url = APIService._constructUrl(`movie/latest`)
+        const response = await fetch(url)
+        const data = await response.json()
+        return data.results.map(movie => new Movie(movie))
+    }
     static _constructUrl(path) {
         return `${this.TMDB_BASE_URL}/${path}?api_key=5c8358b462ac5e72db3b0f23bbbb210d`;
     }
@@ -153,7 +177,7 @@ class MovieSection {
           <h2 id="movie-title">${movie.title}</h2>
           <ul id="genres"></ul>
           <p id="movie-release-date">Release Date: ${movie.releaseDate}</p>
-          <p id="movie-runtime">${movie.runtime}</p>
+          <p id="movie-runtime">Runtime: ${movie.runtime}</p>
           <h3>Overview:</h3>
           <p id="movie-overview">${movie.overview}</p>
         </div>
@@ -356,7 +380,7 @@ class Trailer {
 
 class Navbar {
     static container = document.getElementById('container');
-    static run() {
+    static async run() {
         const about = document.querySelector(".nav-item.about")
         about.addEventListener('click', function() {
             Navbar.container.innerHTML = `
@@ -372,7 +396,62 @@ class Navbar {
             </div>
             `
         })
+        const popular = document.querySelector(".popular");
+        popular.addEventListener('click', function (){
+            Popular.run();
+        })
+        const topRated = document.querySelector(".top-rated");
+        topRated.addEventListener('click', function(){
+            TopRated.run();
+        })
+        const latest = document.querySelector(".latest");
+        latest.addEventListener('click', function(){
+            Latest.run();
+        })
+        const upcoming = document.querySelector(".upcoming");
+        upcoming.addEventListener('click', function(){
+            Upcoming.run();
+        })
+        const nowPlaying = document.querySelector(".now-playing");
+        nowPlaying.addEventListener('click', function(){
+            NowPlaying.run();
+        })
     }
 }
+
+class Popular {
+    static async run() {
+        const popularMovies = await APIService.fetchPopular();
+        HomePage.renderMovies(popularMovies);
+    }
+}
+
+class TopRated {
+    static async run() {
+        const top = await APIService.fetchTopRated();
+        HomePage.renderMovies(top);
+    }
+}
+
+class Latest {
+    static async run() {
+        const latestMovies = await APIService.fetchLatest();
+        HomePage.renderMovies(latestMovies);
+    }
+}
+
+class Upcoming {
+    static async run() {
+        const upcomingMovies = await APIService.fetchUpcoming();
+        HomePage.renderMovies(upcomingMovies);
+    }
+}
+
+class NowPlaying {
+    static async run() {
+        const playingMovies = await APIService.fetchMovies();
+        HomePage.renderMovies(playingMovies);
+    }
+} 
 
 document.addEventListener("DOMContentLoaded", App.run);

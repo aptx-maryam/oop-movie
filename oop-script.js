@@ -53,7 +53,6 @@ class APIService {
         const url = "https://api.themoviedb.org/3/person/popular?api_key=dd5c4a49d145a3de97fde21a0d2168e3&language=en-US&page=1";
         const response = await fetch(url);
         const data = await response.json();
-        // console.log(data.results)
         return data.results.map((actor) => new Actor(actor));
     }
     static async fetchActor(actorId) {
@@ -147,38 +146,19 @@ class HomePage {
 class ActorPage {
     static container = document.getElementById("container");
     static renderActors(actors) {
-        
-        this.container.classList='actor-page'
         this.container.innerHTML = '';
-        // actorDiv.className = 'actor-page';
         actors.forEach((actor) => {
-        //   const img=document.createElement("img");
-        //   img.src=`${Actor.profileUrl}`;
-        //   this.container.appendChild(img);
-        const actorDiv = document.createElement("div"); // Parent Div
+        const actorDiv = document.createElement("div");
         actorDiv.classList.add('actor-div');
-        
         const actorImageContainer = document.createElement("div");
         actorImageContainer.classList.add('actor-image');
-
         const actorImage = document.createElement("img");
-        // actorImage.src = `${Actor.profileUrl}`
         actorImage.src = `${actor.profileUrl}`
-        // console.log(Actor);
-
-        const actorName = document.createElement("h3"); //title
+        const actorName = document.createElement("h4");
         actorName.textContent = `${actor.name}`;
-        // console.log(actor.profileUrl);
-
         actorImage.addEventListener("click", function () {
-        //   Movies.run(movie);
-        // actorImg.addEventListener('click', function() {
-        
             Actors.run(actor)
-        
-    //    });
         });
-  
         actorImageContainer.appendChild(actorImage);
         actorDiv.appendChild(actorImageContainer);
         actorDiv.appendChild(actorName);

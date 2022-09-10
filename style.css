@@ -71,12 +71,12 @@ p {
     margin: 24px 16px 0 0;
     list-style-type: none;
 }
-#actors li {
+#actors li, .actor-div {
     display: inline-block;
     text-align: center;
 }
 
-#actors li img {
+#actors li img, .actor-image img {
     border-radius: 50%;
     object-fit: cover;
     object-position: 50% 30%;
@@ -85,14 +85,16 @@ p {
     margin: 13px;
     cursor: pointer;
 }
-#actors li img:hover {
+#actors li img:hover, .actor-image img:hover {
     width:166px;
     height: 166px;
     border: 4px solid rgb(13, 211, 13);
 
 }
-#actor-profile {
+img#actor-profile {
     width:75%;
+    /* width: 20rem; */
+    /* display: block; */
 }
 #similar {
     display:flex;
@@ -156,6 +158,35 @@ p {
 .dropdown-item:hover {
     color:black;
 }
+
+/* .actor-image { */
+    /* border-radius: 50%;
+    width: 10rem;
+    height: 10rem;
+    overflow: hidden; */
+
+    /* display: inline-block;
+    position: relative;
+    width: 200px;
+    height: 200px;
+    overflow: hidden;
+    border-radius: 50%;
+  }
+  
+  .actor-image img { */
+    /* object-fit: contain; */
+    /* width: 100%; height: 100%; */
+    /* object-fit: cover; */
+    /* margin-left: -50px; */
+  /* } */
+
+  
+  .actor-page{
+    padding-left: 15%;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 40px
+  }
 
 @media screen and (max-width:640px) {
     .movie-home {

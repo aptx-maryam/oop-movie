@@ -8,6 +8,13 @@ class App {
     }
 }
 
+class RunActors {
+    static async run() {
+      const actors = await APIService.fetchActors();
+      ActorPage.renderActors(actors);
+    }
+  }
+
 class APIService {
     static TMDB_BASE_URL = 'https://api.themoviedb.org/3';
     static async fetchMovies(searchURL) {
@@ -30,7 +37,8 @@ class APIService {
         let movies = await APIService.fetchMovies(url);
         HomePage.renderMovies(movies);
     }
-    static async fetchActors(movieId) {
+    
+    static async fetchMovieActors(movieId) {
         const url = APIService._constructUrl(`movie/${movieId}/credits`)
         const response  = await fetch(url)
         const data = await response.json()
@@ -39,6 +47,14 @@ class APIService {
                 return new Actor(actor)
             }
         }).slice(0,5)
+    }
+    
+    static async fetchActors() {
+        const url = "https://api.themoviedb.org/3/person/popular?api_key=dd5c4a49d145a3de97fde21a0d2168e3&language=en-US&page=1";
+        const response = await fetch(url);
+        const data = await response.json();
+        // console.log(data.results)
+        return data.results.map((actor) => new Actor(actor));
     }
     static async fetchActor(actorId) {
         const url = APIService._constructUrl(`person/${actorId}`)
@@ -128,12 +144,58 @@ class HomePage {
 
 }
 
+class ActorPage {
+    static container = document.getElementById("container");
+    static renderActors(actors) {
+        
+        this.container.classList='actor-page'
+        this.container.innerHTML = '';
+        // actorDiv.className = 'actor-page';
+        actors.forEach((actor) => {
+        //   const img=document.createElement("img");
+        //   img.src=`${Actor.profileUrl}`;
+        //   this.container.appendChild(img);
+        const actorDiv = document.createElement("div"); // Parent Div
+        actorDiv.classList.add('actor-div');
+        
+        const actorImageContainer = document.createElement("div");
+        actorImageContainer.classList.add('actor-image');
+
+        const actorImage = document.createElement("img");
+        // actorImage.src = `${Actor.profileUrl}`
+        actorImage.src = `${actor.profileUrl}`
+        // console.log(Actor);
+
+        const actorName = document.createElement("h3"); //title
+        actorName.textContent = `${actor.name}`;
+        // console.log(actor.profileUrl);
+
+        actorImage.addEventListener("click", function () {
+        //   Movies.run(movie);
+        // actorImg.addEventListener('click', function() {
+        
+            Actors.run(actor)
+        
+    //    });
+        });
+  
+        actorImageContainer.appendChild(actorImage);
+        actorDiv.appendChild(actorImageContainer);
+        actorDiv.appendChild(actorName);
+        this.container.appendChild(actorDiv);
+      });
+    }
+  }
+
+
 
 class Movies {
     static async run(movie) {
         const movieData = await APIService.fetchMovie(movie.id)
         MoviePage.renderMovieSection(movieData);
-        const actors = await APIService.fetchActors(movie.id)
+        APIService.fetchActors(movieData);
+
+        const actors = await APIService.fetchMovieActors(movie.id)
         MoviePage.renderActorsSection(actors);
         const similar = await APIService.fetchSimilarMovies(movie.id)
         MoviePage.renderSimilarSection(similar)
@@ -146,7 +208,7 @@ class Movies {
 class Actors {
     static async run(actor) {
         const actorData = await APIService.fetchActor(actor.id)
-        ActorPage.renderActorSection(actorData);
+        ActorsOfMoviePage.renderActorSection(actorData);
     }
 }
 
@@ -256,7 +318,7 @@ class MovieSection {
     
 }
 
-class ActorPage {
+class ActorsOfMoviePage {
     static container = document.getElementById('container')
     static renderActorSection(actor) {
         ActorSection.renderActor(actor)
@@ -265,7 +327,7 @@ class ActorPage {
 
 class ActorSection {
     static renderActor(actor) {
-        ActorPage.container.innerHTML = `
+        ActorsOfMoviePage.container.innerHTML = `
         <div class="row">
         <div class="col-md-4">
           <img id="actor-profile" src=${actor.profileURL}> 
@@ -314,12 +376,13 @@ class Movie {
 }
 
 class Actor {
-    static BACKDROP_BASE_URL = 'http://image.tmdb.org/t/p/w185';
+    static BACKDROP_BASE_URL = 'http://image.tmdb.org/t/p/w780';
     constructor(json) {
         this.id = json.id;
         this.name = json.name;
         this.profile = json.profile_path;
-
+        this.gender = json.gender;
+        this.popularity = json.popularity;
     }
 
     get profileUrl() {
@@ -455,3 +518,4 @@ class NowPlaying {
 } 
 
 document.addEventListener("DOMContentLoaded", App.run);
+document.querySelector(".actors").addEventListener("click",RunActors.run);
